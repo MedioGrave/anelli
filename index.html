@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>Misura Anelli</title>
+<meta name="theme-color" content="#B69CFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Anelli">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700;800;900&display=swap">
+<style>
+  :root { --ink:#111; --cream:#FFF6DC; --lilac:#B69CFF; --yellow:#F7C843; --mint:#7FD8D0; --pink:#F29BE8; --muted:#7A6F5E; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--cream); overscroll-behavior: none; }
+  body { font-family: 'Figtree', system-ui, sans-serif; color: var(--ink); -webkit-tap-highlight-color: transparent; min-height: 100dvh; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  input { -webkit-user-select: text; user-select: text; font-family: inherit; font-size: 16px; color: inherit; }
+  button { -webkit-appearance: none; appearance: none; border: none; background: none; padding: 0; margin: 0; cursor: pointer; font: inherit; color: inherit; }
+  @keyframes enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .enter { animation: enter .38s cubic-bezier(.22,1,.36,1) both; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+  .top { background: var(--lilac); padding: max(14px, calc(env(safe-area-inset-top) + 8px)) 18px 18px; border-bottom: 3px solid var(--ink); }
+  .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 42px; }
+  .badge { display: inline-block; background: var(--ink); color: var(--cream); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; }
+  h1 { font-size: 40px; line-height: 1; font-weight: 900; letter-spacing: -.02em; margin: 16px 0 4px; }
+  h2 { font-size: 28px; line-height: 1.05; font-weight: 900; margin: 12px 0 4px; }
+  h3 { font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin: 24px 0 10px; }
+  .sub { font-weight: 600; opacity: .85; }
+  .ibtn { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--cream); border: 2px solid var(--ink); box-shadow: 0 3px 0 var(--ink); flex-shrink: 0; }
+  .press { transition: transform .12s ease, box-shadow .12s ease; }
+  .press:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink) !important; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; font-size: 16px; padding: 13px 18px; border-radius: 14px; border: 2px solid var(--ink); box-shadow: 0 3px 0 var(--ink); background: #fff; }
+  .btn.primary { background: var(--ink); color: var(--cream); }
+  .btn.block { width: 100%; }
+  .wrap { padding: 16px 16px calc(30px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; }
+
+  .big { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 16px; border-radius: 18px; border: 2px solid var(--ink); box-shadow: 0 3px 0 var(--ink); margin-bottom: 14px; }
+  .big .ic { width: 54px; height: 54px; border-radius: 14px; border: 2px solid var(--ink); background: var(--cream); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .big .t { font-size: 19px; font-weight: 800; }
+  .big .d { font-size: 14px; font-weight: 600; opacity: .75; margin-top: 2px; }
+
+  .box { background: #fff; border: 2px solid var(--ink); border-radius: 16px; box-shadow: 0 3px 0 var(--ink); }
+  .sizes { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; }
+  .sizes > div { padding: 10px 4px; border-left: 2px dashed #E6DBC2; }
+  .sizes > div:first-child { border-left: none; }
+  .sizes .k { font-size: 11px; font-weight: 800; letter-spacing: .08em; color: var(--muted); }
+  .sizes .v { font-size: 24px; font-weight: 900; line-height: 1.15; }
+  .sizes > div.main { background: var(--yellow); border-radius: 14px 0 0 14px; }
+
+  .ctl { display: flex; align-items: center; gap: 10px; }
+  .rbtn { width: 46px; height: 46px; border-radius: 13px; border: 2px solid var(--ink); background: var(--yellow); box-shadow: 0 3px 0 var(--ink); font-size: 24px; font-weight: 900; flex-shrink: 0; }
+  input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; height: 10px; border-radius: 99px; background: #fff; border: 2px solid var(--ink); outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; border-radius: 50%; background: var(--lilac); border: 3px solid var(--ink); }
+  .readout { text-align: center; font-weight: 900; font-size: 34px; line-height: 1; }
+  .readout small { font-size: 15px; font-weight: 700; color: var(--muted); display: block; margin-top: 4px; }
+  .hint { font-size: 14px; font-weight: 600; color: var(--muted); line-height: 1.45; }
+
+  /* stage anello */
+  .stage { height: 46dvh; min-height: 260px; display: flex; align-items: center; justify-content: center; position: relative; background: #fff; border-bottom: 3px solid var(--ink); overflow: hidden; }
+  .circle { position: absolute; border-radius: 50%; border: 1.5px solid #D6266B; background: rgba(182,156,255,.18); }
+  .cross { position: absolute; background: rgba(17,17,17,.25); }
+
+  /* calibrazione */
+  .cardzone { padding-bottom: 22px; display: flex; align-items: flex-start; justify-content: center; background: #fff; border-bottom: 3px solid var(--ink); padding-top: max(66px, calc(env(safe-area-inset-top) + 60px)); overflow: hidden; position: relative; }
+  .ccard { background: linear-gradient(160deg, #B69CFF, #F29BE8); border: 1.5px solid var(--ink); position: relative; }
+  .ccard .chip { position: absolute; background: var(--yellow); border: 1.5px solid var(--ink); border-radius: 4px; }
+
+  /* righello */
+  .rulerview { display: flex; min-height: 100dvh; }
+  .ruler { width: 92px; flex-shrink: 0; position: relative; background: #fff; border-right: 3px solid var(--ink); }
+  .tick { position: absolute; left: 0; height: 1px; background: var(--ink); }
+  .tlabel { position: absolute; left: 44px; font-size: 13px; font-weight: 800; transform: translateY(-50%); }
+  .rside { flex: 1; min-width: 0; padding: max(14px, calc(env(safe-area-inset-top) + 8px)) 14px calc(20px + env(safe-area-inset-bottom)); }
+  .field { width: 100%; padding: 12px 13px; border-radius: 12px; border: 2px solid var(--ink); background: #fff; font-weight: 700; outline: none; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-top: 2px dashed #E6DBC2; }
+  .row:first-child { border-top: none; }
+  .row .n { font-weight: 800; font-size: 17px; }
+  .row .m { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .xbtn { width: 34px; height: 34px; border-radius: 10px; border: 2px solid var(--ink); background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .floatback { position: absolute; top: max(14px, calc(env(safe-area-inset-top) + 8px)); left: 16px; z-index: 3; }
+  .floatlabel { position: absolute; top: max(14px, calc(env(safe-area-inset-top) + 8px)); right: 16px; z-index: 3; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function () {
+  'use strict';
+  var CARD_W = 53.98, CARD_H = 85.60, CARD_R = 3.18; // tessera ISO/IEC 7810 ID-1 (in verticale)
+  function lsGet(k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  var cfg = lsGet('anelli-cfg', null);
+  var saved = lsGet('anelli-saved', []);
+  var S = { route: 'home', d: lsGet('anelli-last', 17.3), circ: null, calib: null };
+  var app = document.getElementById('app');
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function n1(x) { return (Math.round(x * 10) / 10).toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
+
+  // stima iniziale px per mm (poi si conferma con la carta)
+  function guessPxMm() {
+    var dpr = window.devicePixelRatio || 1;
+    var ppi = dpr >= 3 ? 460 : 326; // iPhone recenti 460 ppi @3x, modelli @2x 326 ppi
+    return ppi / dpr / 25.4;
+  }
+  function pxmm() { return cfg ? cfg.pxmm : guessPxMm(); }
+
+  // ---------- conversioni misure ----------
+  function frac(x) {
+    var w = Math.floor(x), r = x - w;
+    var f = r >= .875 ? (w++, '') : r >= .625 ? '¾' : r >= .375 ? '½' : r >= .125 ? '¼' : '';
+    return (w > 0 ? w : (f ? '' : '0')) + f;
+  }
+  function sizes(d) {
+    var c = Math.PI * d;
+    var it = Math.round(c - 40);
+    var us = (d - 11.7) / 0.81;
+    var usTxt = us < 0.5 ? '—' : frac(Math.round(us * 4) / 4);
+    var uk = (c - 37.5) / 1.25, ukTxt;
+    var ukr = Math.round(uk * 2) / 2;
+    if (ukr < 0) ukTxt = '—';
+    else {
+      var idx = Math.floor(ukr), half = ukr - idx ? '½' : '';
+      ukTxt = idx <= 25 ? String.fromCharCode(65 + idx) + half : 'Z+' + (idx - 25) + half;
+    }
+    return { c: c, it: it < 1 ? '—' : it, eu: Math.round(c), us: usTxt, uk: ukTxt };
+  }
+  function sizesHtml(d) {
+    var s = sizes(d);
+    return '<div class="box sizes"><div class="main"><div class="k">ITALIA</div><div class="v">' + s.it + '</div></div>' +
+      '<div><div class="k">EU</div><div class="v">' + s.eu + '</div></div>' +
+      '<div><div class="k">USA</div><div class="v">' + s.us + '</div></div>' +
+      '<div><div class="k">UK</div><div class="v">' + s.uk + '</div></div></div>';
+  }
+
+  var I = {
+    back: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+    ring: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4"><circle cx="12" cy="14" r="7"/><path d="M9.5 5l1.2-2h2.6l1.2 2-2.5 2z" fill="#7FD8D0" stroke-linejoin="round"/></svg>',
+    rule: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M7 6h4M7 10h3M7 14h4M7 18h3"/></svg>',
+    list: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.3" fill="#111"/><circle cx="4.5" cy="12" r="1.3" fill="#111"/><circle cx="4.5" cy="18" r="1.3" fill="#111"/></svg>',
+    card: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2"><rect x="3" y="5.5" width="18" height="13" rx="2"/><rect x="6" y="9" width="4" height="3" rx=".6" fill="#F7C843"/></svg>',
+    x: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="3.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+  };
+
+  // ---------- router ----------
+  function route() {
+    var h = location.hash.replace(/^#\/?/, '') || 'home';
+    if (!cfg && h !== 'calib' && h !== 'home') { location.replace('#/calib'); return; }
+    S.route = h;
+    if (h === 'calib') S.calib = pxmm();
+    render(true);
+    window.scrollTo(0, 0);
+  }
+  function go(h) { location.hash = '#/' + h; }
+  function back() { if (history.length > 1) history.back(); else location.replace('#/'); }
+
+  function render(anim) {
+    var r = S.route, h;
+    if (r === 'ring') h = vRing();
+    else if (r === 'rule') h = vRule();
+    else if (r === 'calib') h = vCalib();
+    else if (r === 'saved') h = vSaved();
+    else h = vHome();
+    app.innerHTML = '<div class="' + (anim ? 'enter' : '') + '">' + h + '</div>';
+  }
+
+  function vHome() {
+    return '<div class="top"><div class="top-row"><span class="badge">Misura anelli</span></div><h1>Che misura porti?</h1><div class="sub">Con un anello che hai già, o con un filo.</div></div>' +
+      '<div class="wrap">' +
+      (!cfg ? '<div class="box" style="padding:14px;margin-bottom:16px;background:var(--yellow)"><b>Prima cosa: calibra lo schermo.</b><div class="hint" style="color:#111;margin-top:4px">Serve una volta sola, con una carta di credito o un bancomat.</div><button class="btn primary block press" data-a="go" data-v="calib" style="margin-top:12px">Calibra ora</button></div>' : '') +
+      '<button class="big press" data-a="go" data-v="ring" style="background:var(--yellow)"><span class="ic">' + I.ring + '</span><span><div class="t">Ho un anello</div><div class="d">Appoggialo sullo schermo e allarga il cerchio</div></span></button>' +
+      '<button class="big press" data-a="go" data-v="rule" style="background:var(--mint)"><span class="ic">' + I.rule + '</span><span><div class="t">Misuro il dito</div><div class="d">Con un filo o una striscia di carta e il righello</div></span></button>' +
+      '<button class="big press" data-a="go" data-v="saved" style="background:var(--pink)"><span class="ic">' + I.list + '</span><span><div class="t">Le mie misure</div><div class="d">' + (saved.length ? saved.length + (saved.length === 1 ? ' salvata' : ' salvate') : 'Ancora nessuna') + '</div></span></button>' +
+      '<button class="big press" data-a="go" data-v="calib" style="background:#fff"><span class="ic">' + I.card + '</span><span><div class="t">Calibrazione</div><div class="d">' + (cfg ? 'Fatta · rifalla se cambi telefono' : 'Da fare') + '</div></span></button>' +
+      '<p class="hint" style="margin-top:18px">Le dita sono più gonfie la sera e col caldo: misura a fine giornata e, se sei tra due misure, scegli la più grande.</p></div>';
+  }
+
+  // --- anello ---
+  function vRing() {
+    var px = S.d * pxmm();
+    var c = sizes(S.d).c;
+    return '<div class="stage" id="stage"><button class="ibtn press floatback" data-a="back" aria-label="Indietro">' + I.back + '</button>' +
+      '<span class="badge floatlabel">Bordo interno</span>' +
+      '<div class="cross" style="width:1px;height:100%;left:50%"></div><div class="cross" style="height:1px;width:100%;top:50%"></div>' +
+      '<div class="circle" id="circle" style="width:' + px + 'px;height:' + px + 'px"></div></div>' +
+      '<div class="wrap"><div class="readout" id="ro">' + n1(S.d) + ' mm<small>diametro interno · circonferenza ' + n1(c) + ' mm</small></div>' +
+      '<div class="ctl" style="margin:16px 0"><button class="rbtn press" data-a="dd" data-v="-0.1">−</button><input type="range" id="sl" min="12" max="25" step="0.05" value="' + S.d + '"><button class="rbtn press" data-a="dd" data-v="0.1">+</button></div>' +
+      '<div id="sz">' + sizesHtml(S.d) + '</div>' +
+      '<p class="hint">Appoggia l\'anello al centro e allarga il cerchio finché il bordo rosa tocca esattamente il <b>bordo interno</b> dell\'anello.</p>' +
+      '<button class="btn primary block press" data-a="save" style="margin-top:6px">Salva questa misura</button></div>';
+  }
+  function setD(d) {
+    S.d = Math.min(25, Math.max(12, Math.round(d * 100) / 100));
+    lsSet('anelli-last', S.d);
+    var px = S.d * pxmm();
+    var el = document.getElementById('circle');
+    if (el) { el.style.width = px + 'px'; el.style.height = px + 'px'; }
+    var ro = document.getElementById('ro'); if (ro) ro.innerHTML = n1(S.d) + ' mm<small>diametro interno · circonferenza ' + n1(Math.PI * S.d) + ' mm</small>';
+    var sl = document.getElementById('sl'); if (sl && +sl.value !== S.d) sl.value = S.d;
+    var sz = document.getElementById('sz'); if (sz) sz.innerHTML = sizesHtml(S.d);
+  }
+
+  // --- righello / filo ---
+  function vRule() {
+    var p = pxmm(), top = 70;
+    var hpx = Math.max(window.innerHeight, 600);
+    var mm = Math.floor((hpx - top - 10) / p), ticks = '<div class="tlabel" style="top:' + (top - 16) + 'px;left:8px;font-size:12px">0 ▼</div>';
+    for (var i = 0; i <= mm; i++) {
+      var w = i % 10 === 0 ? 38 : i % 5 === 0 ? 26 : 14;
+      ticks += '<div class="tick" style="top:' + (top + i * p) + 'px;width:' + w + 'px;' + (i % 10 === 0 ? 'height:2px' : '') + '"></div>';
+      if (i % 10 === 0 && i > 0) ticks += '<div class="tlabel" style="top:' + (top + i * p) + 'px">' + i + '</div>';
+    }
+    var c = S.circ;
+    return '<div class="rulerview"><div class="ruler" style="height:' + hpx + 'px">' + ticks + '</div><div class="rside">' +
+      '<div class="top-row"><button class="ibtn press" data-a="back" aria-label="Indietro">' + I.back + '</button><span class="badge">Filo</span></div>' +
+      '<h2>Misura il dito</h2>' +
+      '<p class="hint">1. Avvolgi un filo o una striscia di carta attorno alla base del dito, aderente ma senza stringere.<br>2. Segna il punto dove si sovrappone.<br>3. Metti l\'inizio sulla <b>linea dello 0</b>, stendilo lungo il righello e leggi i mm al segno.</p>' +
+      '<h3>Circonferenza (mm)</h3>' +
+      '<div class="ctl"><button class="rbtn press" data-a="dc" data-v="-0.5">−</button><input class="field" id="circ" inputmode="decimal" placeholder="es. 54" value="' + (c ? String(c).replace('.', ',') : '') + '" style="text-align:center;font-size:22px"><button class="rbtn press" data-a="dc" data-v="0.5">+</button></div>' +
+      '<div id="csz" style="margin-top:14px">' + (c ? sizesHtml(c / Math.PI) : '') + '</div>' +
+      (c ? '<button class="btn primary block press" data-a="save" style="margin-top:14px">Salva</button>' : '') +
+      '</div></div>';
+  }
+  function setCirc(c, rerender) {
+    S.circ = c && c > 30 && c < 90 ? Math.round(c * 10) / 10 : null;
+    if (rerender) { render(false); return; }
+    var el = document.getElementById('csz'); if (el) el.innerHTML = S.circ ? sizesHtml(S.circ / Math.PI) : '';
+  }
+
+  // --- calibrazione ---
+  function vCalib() {
+    var p = S.calib;
+    return '<div class="cardzone"><button class="ibtn press floatback" data-a="back" aria-label="Indietro">' + I.back + '</button><span class="badge floatlabel">Calibrazione</span>' + cardHtml(p) + '</div>' +
+      '<div class="wrap"><p class="hint" style="margin-top:0">Appoggia una carta di credito o un bancomat <b>in verticale</b> sopra il rettangolo e regola con il cursore finché i bordi combaciano esattamente.</p>' +
+      '<div class="ctl" style="margin:14px 0"><button class="rbtn press" data-a="dp" data-v="-0.01">−</button><input type="range" id="cal" min="4" max="8.5" step="0.005" value="' + p + '"><button class="rbtn press" data-a="dp" data-v="0.01">+</button></div>' +
+      '<button class="btn primary block press" data-a="calok">Combacia, salva</button></div>';
+  }
+  function cardHtml(p) {
+    return '<div class="ccard" id="ccard" style="width:' + (CARD_W * p) + 'px;height:' + (CARD_H * p) + 'px;border-radius:' + (CARD_R * p) + 'px">' +
+      '<div class="chip" style="width:' + (9 * p) + 'px;height:' + (12 * p) + 'px;left:' + (20 * p) + 'px;top:' + (8 * p) + 'px"></div></div>';
+  }
+  function setCal(p) {
+    S.calib = Math.min(8.5, Math.max(4, Math.round(p * 1000) / 1000));
+    var c = document.getElementById('ccard');
+    if (c) c.outerHTML = cardHtml(S.calib);
+    var sl = document.getElementById('cal'); if (sl && +sl.value !== S.calib) sl.value = S.calib;
+  }
+
+  // --- salvate ---
+  function vSaved() {
+    var rows = saved.map(function (m, i) {
+      var s = sizes(m.d);
+      return '<div class="row"><div><div class="n">' + esc(m.name) + '</div><div class="m">IT ' + s.it + ' · EU ' + s.eu + ' · US ' + s.us + ' · UK ' + s.uk + ' · Ø ' + n1(m.d) + ' mm</div></div>' +
+        '<button class="xbtn" data-a="del" data-v="' + i + '" aria-label="Elimina">' + I.x + '</button></div>';
+    }).join('');
+    return '<div class="top" style="background:var(--pink)"><div class="top-row"><button class="ibtn press" data-a="back" aria-label="Indietro">' + I.back + '</button></div><h2>Le mie misure</h2></div>' +
+      '<div class="wrap">' + (saved.length ? '<div class="box">' + rows + '</div>' : '<p class="hint" style="text-align:center;padding:30px 10px">Quando misuri un anello o un dito, premi “Salva” e lo ritrovi qui.</p>') + '</div>';
+  }
+
+  // ---------- eventi ----------
+  app.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-a]'); if (!b) return;
+    var a = b.getAttribute('data-a'), v = b.getAttribute('data-v');
+    if (a === 'go') go(v);
+    else if (a === 'back') back();
+    else if (a === 'dd') setD(S.d + +v);
+    else if (a === 'dc') { var wasNull = !S.circ; setCirc((S.circ || 54) + +v, wasNull); var ci = document.getElementById('circ'); if (ci && S.circ) ci.value = String(S.circ).replace('.', ','); }
+    else if (a === 'dp') setCal(S.calib + +v);
+    else if (a === 'calok') { cfg = { pxmm: S.calib, at: Date.now() }; lsSet('anelli-cfg', cfg); location.replace('#/'); }
+    else if (a === 'save') {
+      var d = S.route === 'rule' ? S.circ / Math.PI : S.d;
+      var name = prompt('Nome della misura (es. Anulare sinistro, Marta…)');
+      if (name && name.trim()) { saved.unshift({ name: name.trim(), d: Math.round(d * 100) / 100, at: Date.now() }); lsSet('anelli-saved', saved); go('saved'); }
+    }
+    else if (a === 'del') { if (confirm('Eliminare questa misura?')) { saved.splice(+v, 1); lsSet('anelli-saved', saved); render(false); } }
+  });
+  app.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.id === 'sl') setD(+t.value);
+    else if (t.id === 'cal') setCal(+t.value);
+    else if (t.id === 'circ') {
+      var had = !!S.circ;
+      setCirc(parseFloat(t.value.replace(',', '.')), false);
+      if (had !== !!S.circ) { var pos = t.selectionStart; render(false); var n = document.getElementById('circ'); n.focus(); try { n.setSelectionRange(pos, pos); } catch (er) {} }
+    }
+  });
+
+  window.addEventListener('hashchange', route);
+  route();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+})();
+</script>
+</body>
+</html>
