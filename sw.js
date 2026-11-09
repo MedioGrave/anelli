@@ -1,5 +1,5 @@
 // Misura anelli: funziona offline. Prima prova la rete, se manca usa la copia salvata.
-const CACHE = 'anelli-v1';
+const CACHE = 'anelli-v2';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {

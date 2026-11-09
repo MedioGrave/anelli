@@ -82,6 +82,16 @@
   .row .n { font-weight: 800; font-size: 17px; }
   .row .m { font-size: 13px; font-weight: 600; color: var(--muted); }
   .xbtn { width: 34px; height: 34px; border-radius: 10px; border: 2px solid var(--ink); background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .thumb { width: 58px; height: 58px; border-radius: 12px; border: 2px solid var(--ink); object-fit: cover; flex-shrink: 0; background: var(--cream); display: flex; align-items: center; justify-content: center; }
+  .item { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; border-top: 2px dashed #E6DBC2; }
+  .item:first-child { border-top: none; }
+  .item .n { font-weight: 800; font-size: 17px; }
+  .item .m { font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+  .photo-pick { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; width: 100%; aspect-ratio: 4/3; border-radius: 16px; border: 2px dashed var(--ink); background: #fff; font-weight: 800; overflow: hidden; position: relative; }
+  .photo-pick img, .bigphoto { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .bigphoto { aspect-ratio: 1; border-radius: 16px; border: 2px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
+  label.l { display: block; font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; margin: 20px 0 8px; }
+  textarea.field { min-height: 80px; resize: vertical; line-height: 1.4; }
   .floatback { position: absolute; top: max(14px, calc(env(safe-area-inset-top) + 8px)); left: 16px; z-index: 3; }
   .floatlabel { position: absolute; top: max(14px, calc(env(safe-area-inset-top) + 8px)); right: 16px; z-index: 3; }
 </style>
@@ -96,6 +106,13 @@
   function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   var cfg = lsGet('anelli-cfg', null);
   var saved = lsGet('anelli-saved', []);
+  saved.forEach(function (m) { if (!m.id) m.id = (m.at || Date.now()).toString(36) + Math.random().toString(36).slice(2, 6); });
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function findItem(id) { for (var i = 0; i < saved.length; i++) if (saved[i].id === id) return saved[i]; return null; }
+  function persist() {
+    try { localStorage.setItem('anelli-saved', JSON.stringify(saved)); return true; }
+    catch (e) { alert('Memoria piena: elimina qualche misura vecchia o usa foto meno numerose.'); return false; }
+  }
   var S = { route: 'home', d: lsGet('anelli-last', 17.3), circ: null, calib: null };
   var app = document.getElementById('app');
 
@@ -144,12 +161,20 @@
     rule: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M7 6h4M7 10h3M7 14h4M7 18h3"/></svg>',
     list: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.3" fill="#111"/><circle cx="4.5" cy="12" r="1.3" fill="#111"/><circle cx="4.5" cy="18" r="1.3" fill="#111"/></svg>',
     card: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2"><rect x="3" y="5.5" width="18" height="13" rx="2"/><rect x="6" y="9" width="4" height="3" rx=".6" fill="#F7C843"/></svg>',
+    camera: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.2" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+    edit: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
+    arrow: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M9 5l7 7-7 7"/></svg>',
     x: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="3.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'
   };
 
   // ---------- router ----------
   function route() {
     var h = location.hash.replace(/^#\/?/, '') || 'home';
+    var parts = h.split('/'); h = parts[0]; S.param = parts[1] ? decodeURIComponent(parts[1]) : null;
+    if (h === 'new' && !S.form) { location.replace('#/'); return; }
+    if ((h === 'item' || h === 'edit') && !findItem(S.param)) { location.replace('#/saved'); return; }
+    if (h === 'edit' && (!S.form || S.form.id !== S.param)) { var it = findItem(S.param); S.form = { id: it.id, d: it.d, name: it.name, note: it.note || '', photo: it.photo || null }; }
+    if (h !== 'new' && h !== 'edit') S.form = null;
     if (!cfg && h !== 'calib' && h !== 'home') { location.replace('#/calib'); return; }
     S.route = h;
     if (h === 'calib') S.calib = pxmm();
@@ -165,6 +190,8 @@
     else if (r === 'rule') h = vRule();
     else if (r === 'calib') h = vCalib();
     else if (r === 'saved') h = vSaved();
+    else if (r === 'new' || r === 'edit') h = vForm();
+    else if (r === 'item') h = vItem();
     else h = vHome();
     app.innerHTML = '<div class="' + (anim ? 'enter' : '') + '">' + h + '</div>';
   }
@@ -252,14 +279,61 @@
   }
 
   // --- salvate ---
+  function thumbHtml(m, cls) {
+    return m.photo ? '<img class="' + cls + '" src="' + m.photo + '" alt="">' : '<span class="' + cls + '">' + I.ring + '</span>';
+  }
   function vSaved() {
-    var rows = saved.map(function (m, i) {
+    var rows = saved.map(function (m) {
       var s = sizes(m.d);
-      return '<div class="row"><div><div class="n">' + esc(m.name) + '</div><div class="m">IT ' + s.it + ' · EU ' + s.eu + ' · US ' + s.us + ' · UK ' + s.uk + ' · Ø ' + n1(m.d) + ' mm</div></div>' +
-        '<button class="xbtn" data-a="del" data-v="' + i + '" aria-label="Elimina">' + I.x + '</button></div>';
+      return '<button class="item" data-a="go" data-v="item/' + encodeURIComponent(m.id) + '">' + thumbHtml(m, 'thumb') +
+        '<span style="flex:1;min-width:0"><div class="n">' + esc(m.name) + '</div><div class="m">IT ' + s.it + ' · US ' + s.us + ' · Ø ' + n1(m.d) + ' mm' + (m.note ? ' · ' + esc(m.note) : '') + '</div></span>' + I.arrow + '</button>';
     }).join('');
     return '<div class="top" style="background:var(--pink)"><div class="top-row"><button class="ibtn press" data-a="back" aria-label="Indietro">' + I.back + '</button></div><h2>Le mie misure</h2></div>' +
-      '<div class="wrap">' + (saved.length ? '<div class="box">' + rows + '</div>' : '<p class="hint" style="text-align:center;padding:30px 10px">Quando misuri un anello o un dito, premi “Salva” e lo ritrovi qui.</p>') + '</div>';
+      '<div class="wrap">' + (saved.length ? '<div class="box">' + rows + '</div>' : '<p class="hint" style="text-align:center;padding:30px 10px">Quando misuri un anello o un dito, premi “Salva” e lo ritrovi qui, anche con la foto.</p>') + '</div>';
+  }
+
+  function vForm() {
+    var f = S.form, isNew = S.route === 'new';
+    return '<div class="top" style="background:var(--yellow)"><div class="top-row"><button class="ibtn press" data-a="back" aria-label="Annulla">' + I.back + '</button><span class="badge">' + (isNew ? 'Salva misura' : 'Modifica') + '</span></div>' +
+      '<h2>Ø ' + n1(f.d) + ' mm · IT ' + sizes(f.d).it + '</h2></div><div class="wrap">' +
+      '<label class="l">Foto</label><button class="photo-pick press" data-a="pickphoto">' + (f.photo ? '<img src="' + f.photo + '" alt="">' : I.camera + '<span>Scatta o scegli una foto</span>') + '</button>' +
+      (f.photo ? '<button class="btn block press" data-a="rmphoto" style="margin-top:10px">Togli foto</button>' : '') +
+      '<input type="file" id="ph" accept="image/*" style="display:none">' +
+      '<label class="l" for="f-name">Nome</label><input class="field" id="f-name" placeholder="Es. Fede, anello della nonna, anulare sx" value="' + esc(f.name) + '">' +
+      '<label class="l" for="f-note">Note</label><textarea class="field" id="f-note" placeholder="Es. oro giallo, va un po\' largo">' + esc(f.note) + '</textarea>' +
+      '<button class="btn primary block press" data-a="saveform" style="margin-top:22px">Salva</button></div>';
+  }
+
+  function vItem() {
+    var m = findItem(S.param), s = sizes(m.d);
+    return '<div class="top" style="background:var(--pink)"><div class="top-row"><button class="ibtn press" data-a="back" aria-label="Indietro">' + I.back + '</button>' +
+      '<button class="ibtn press" data-a="go" data-v="edit/' + encodeURIComponent(m.id) + '" aria-label="Modifica">' + I.edit + '</button></div><h2>' + esc(m.name) + '</h2>' +
+      '<div class="sub">' + new Date(m.at).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }) + '</div></div><div class="wrap">' +
+      (m.photo ? '<img class="bigphoto" src="' + m.photo + '" alt="" style="margin-bottom:16px">' : '') +
+      sizesHtml(m.d) +
+      '<p class="hint" style="text-align:center">Diametro interno ' + n1(m.d) + ' mm · circonferenza ' + n1(s.c) + ' mm</p>' +
+      (m.note ? '<div class="box" style="padding:14px;font-weight:600;white-space:pre-wrap">' + esc(m.note) + '</div>' : '') +
+      '<button class="btn block press" data-a="showring" style="margin-top:16px">Mostra il cerchio sullo schermo</button>' +
+      '<button class="btn block press" data-a="delitem" style="margin-top:12px;color:#C4321A;border-color:#C4321A;box-shadow:0 3px 0 #C4321A">Elimina</button></div>';
+  }
+
+  // foto: ridimensionata per stare comoda in memoria
+  function loadPhoto(file) {
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () {
+      var max = 640, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+      var c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      if (S.form) { syncForm(); S.form.photo = c.toDataURL('image/jpeg', 0.72); render(false); }
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); alert('Non riesco ad aprire questa foto.'); };
+    img.src = url;
+  }
+  function syncForm() {
+    var n = document.getElementById('f-name'), t = document.getElementById('f-note');
+    if (n) S.form.name = n.value; if (t) S.form.note = t.value;
   }
 
   // ---------- eventi ----------
@@ -274,11 +348,26 @@
     else if (a === 'calok') { cfg = { pxmm: S.calib, at: Date.now() }; lsSet('anelli-cfg', cfg); location.replace('#/'); }
     else if (a === 'save') {
       var d = S.route === 'rule' ? S.circ / Math.PI : S.d;
-      var name = prompt('Nome della misura (es. Anulare sinistro, Marta…)');
-      if (name && name.trim()) { saved.unshift({ name: name.trim(), d: Math.round(d * 100) / 100, at: Date.now() }); lsSet('anelli-saved', saved); go('saved'); }
+      S.form = { id: null, d: Math.round(d * 100) / 100, name: '', note: '', photo: null };
+      go('new');
     }
-    else if (a === 'del') { if (confirm('Eliminare questa misura?')) { saved.splice(+v, 1); lsSet('anelli-saved', saved); render(false); } }
+    else if (a === 'pickphoto') document.getElementById('ph').click();
+    else if (a === 'rmphoto') { syncForm(); S.form.photo = null; render(false); }
+    else if (a === 'saveform') {
+      syncForm();
+      var f = S.form;
+      if (!f.name.trim()) { var ni = document.getElementById('f-name'); ni.focus(); ni.style.boxShadow = '0 0 0 3px #FF6B4A'; return; }
+      var it = f.id ? findItem(f.id) : null;
+      if (it) { it.name = f.name.trim(); it.note = f.note.trim(); it.photo = f.photo; }
+      else { it = { id: uid(), name: f.name.trim(), note: f.note.trim(), photo: f.photo, d: f.d, at: Date.now() }; saved.unshift(it); }
+      if (!persist()) return;
+      S.form = null;
+      if (f.id) back(); else location.replace('#/item/' + encodeURIComponent(it.id));
+    }
+    else if (a === 'showring') { var m = findItem(S.param); setD(m.d); go('ring'); }
+    else if (a === 'delitem') { if (confirm('Eliminare questa misura?')) { saved = saved.filter(function (x) { return x.id !== S.param; }); persist(); location.replace('#/saved'); } }
   });
+  app.addEventListener('change', function (e) { if (e.target.id === 'ph' && e.target.files && e.target.files[0]) { loadPhoto(e.target.files[0]); e.target.value = ''; } });
   app.addEventListener('input', function (e) {
     var t = e.target;
     if (t.id === 'sl') setD(+t.value);
